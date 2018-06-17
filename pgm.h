@@ -1,158 +1,132 @@
-typedef struct pgm {
-	int altura;
-	int largura;
-	int maximo;
-	int **data;
+#define vetorzao 10000
 
-}pgm;
+FILE *fp;
+FILE *nfp;
+int janela;
 
-pgm* lerPGM(const char *nome_arquivo, pgm* pPgm){
-	
-	FILE *fp;
-	char ler[256];
-	int i, j;
-	int lo, hi;
-	
-	printf("Qual o nome do arquivo a ser lido: ");
-	scanf("%s", nome_arquivo);
-	
-	fp = fopen(nome_arquivo,"r");
-	
-	if(fp == NULL){
-		printf("Nao foi possivel abrir o arquivo.\n");
-		exit(1);
-	}
-	
-	printf("Lendo o arquivo %s...\n\n", nome_arquivo);
-	
-	fscanf(fp,"%s",ler);
-	
-	if(strcmp(ler, "P2") == 0){
-		
-		printf("TIPO VALIDO!\n\n");
-		fscanf(fp,"%s", ler);
-	}
-	
-	split(fp);
-	fscanf(fp, "%d", &pPgm -> altura);
-	split(fp);
-	fscanf(fp, "%d", &pPgm -> largura);
-	slipt(fp);
-	fscanf(fp, "%d", &pPgm -> maximo);
-	fgetc(fp);
-	
-	pPgm -> data = alocar_memoria(pPgm -> altura, pPgm -> largura);
-	
-	if(pPgm -> maximo > 255){
-		for(i = 0; i < pPgm -> altura; ++i) {
-			for(j = 0; j < pPgm -> largura; ++j){
-				hi = fgetc(fp);
-				lo = fgetc (fp);
-				pPgm -> data[i][j] = (hi << 8) + lo;
-			}	
-		}
-	}
-	else {
-		for(i = 0; i < pPgm -> altura; ++i){
-			for(j = 0; i < pPgm -> largura; ++j){
-				lo = fgetc(fp);
-				pPgm -> data[i][j] = lo;
-			}
-		}
-		
-		fclose(fp);
-		return pPgm;
-}
-
-void escreverPGM(const char *novo_arquivo, const pgm* pPgm){
-	FILE *nfp;
-	int i, j;
-	int hi, lo;
-	
-	printf("--------ESCREVER NOVO ARQUIVO--------\n\n");
-	
-	printf("O arquivo deve ser escrito no formato ./pasta/nomedoarquivo.ascii.pgm\n\n");
-	
-	printf("Digite o nome do novo arquivo: ");
-	scanf("%s", novo_arquivo);
-	
-	nfp = fopen(novo_arquivo, "w");
-	
-	if(nfp == NULL){
-		printf("Nao foi possivel abrir o arquivo.\n");
-		exit(1);	
-	}
-	
-	fprintf(nfp,"P2");
-	fprintf(nfp,"%d %d", pPgm -> largura, pPgm -> altura);
-	fprintf(nfp, "%d", pPgm -> maximo);
-	
-	/*if(pPgm -> maximo > 255){
-	for(i = 0; i < pPgm -> altura; ++i) {
-		for(j = 0; j < pPgm -> largura; ++j){
-			hi = fgetc(fp);
-			lo = fgetc (fp);
-			pPgm -> data[i][j] = (hi << 8) + lo;
-			}	
-		}
-	}
-	else {
-		for(i = 0; i < pPgm -> altura; ++i){
-			for(j = 0; i < pPgm -> largura; ++j){
-				lo = fgetc(fp);
-				pPgm -> data[i][j] = lo;
-		}
-	}*/
-	fclose(nfp);
-	desalocar_memoria(pPgm -> data, pPgm -> altura);
-
-}
-
-void split(FILE *fp0){
-	
-	int ch;
-	char linhas[100];
-	
-	while((ch = fgetc(fp0)) != EOF && isspace(ch));
-	
-	if(ch == '#'){
-		fgets(linhas, sizeof(linhas), fp0);
-		split(fp0);
-	} else {
-		fseek(fp, -1, SEEK_CUR);
-	}
-
-}
-
-void **alocar_memoria(struct pmg* pgm){
+int** alocamemo(int largura, int altura){
 	
 	int **val;
 	int i;
 	
-	val = (int **)malloc(sizeof(int *)* largura);
-	if (val == NULL){
-		printf("Nao foi possivel alocar memoria.");
-		return NULL;
-	}
+	val = (int **)malloc(sizeof(int *) * largura);
 	
-	for(i = 0; i < altura; i++){
-		val[i] = (int *)malloc(sizeof(int) * altura);
-			printf("Nao foi possivel alocar memoria");
-			return NULL;
+	for(i = 0; i < largura; i ++){
+		val[i] = (int *)malloc(sizeof(int *) * altura);
 	}
-	
 	return val;
-
 }
 
-void desalocar_memoria(int **data, int altura){
+int** lerimg(int **data,int largura, int altura){
+	
+	int i,j;
+	char x;
+	char linha[1000];
+	unsigned char val;
+	
+	for(i = janela/2; i < largura + janela/2 - 1; i++){
+		for(j = janela/2; j < altura + janela/2 - 1; j++){
+		
+			x = fgetc(fp);
+			if ( x == '#'){
+				j--;
+				fgets(linha, vetorzao, fp);
+				continue;
+			}
+			fseek(fp, -1, SEEK_CUR);
+			fscanf(fp, "%hhd ", &val);
+			data[i][j] = val;
+		}
+	}		
+	return data;
+}
 
-	int i;
+void armazenaimg(int *largura, int *altura, int *maximo){
 	
-	for (i = 0; i < altura; ++i){
-		free(data[i]);
+	char linha[1000];
+	char x;
 	
+	unsigned char k;
+	
+	fgets(linha,vetorzao,fp);
+	*altura = -1;
+	*largura = -1;
+	*maximo = -1;
+	
+	while(*maximo <= 0){
+		x = fgetc(fp);
+	
+		if(x == '#'){
+			fgets(linha,vetorzao,fp);
+			continue;
+		}
+		
+		fseek(fp, -1, SEEK_CUR);
+		
+		fscanf(fp, "%c", &k);
+		
+		if(*altura == -1){
+			fseek(fp,-1,SEEK_CUR);
+			fscanf(fp, "%d", &(*altura));
+		}else if (*largura == -1){
+			fseek(fp,-1,SEEK_CUR);
+			fscanf(fp, "%d", &(*largura));
+		}else if(*maximo == -1){
+			fseek(fp,-1,SEEK_CUR);
+			fscanf(fp, "%d", &(*maximo));
+		}
+	}
+}
+
+void bordas(int **data, int largura, int altura){
+	
+	int i = 0;
+	
+	for(i = 0; i <= altura + 1; i++){
+		data[0][i] = 255;
+		data[largura + 1][i] = 255;
 	}
 	
-	free (data);
+	for(i = 0; i <= largura + 1; i++){
+		data[i][0] = 255;
+		data[i][altura +1] = 255;
+	}
+}
+
+void desalocamemo(int **data, int largura){
+	int i;
+	
+	for(i = 0; i < largura; ++i){
+		free(data[i]);
+	}
+	free(data);
+}
+
+void escreverimg(int **data,int largura, int altura, int maximo, const char *newfile){
+	
+	int i,j;
+	int count = 1;
+	
+	nfp = fopen(newfile, "w");
+	
+	if(nfp == NULL){
+		printf("Nao foi possivel criar o arquivo.\n");
+		exit(1);
+	}
+	
+	fprintf(nfp,"P2\n");
+	fprintf(nfp,"%d %d\n", altura, largura);
+	fprintf(nfp,"%d\n", maximo);
+	
+	for(i = janela/2; i < altura+janela/2; i++){
+			count = 1;
+		for(j = janela/2; j < largura+janela/2; j++,count++){
+			fprintf(nfp, "%.3d ", data[i][j]);
+			if(count%10 == 0 && j > janela/2)
+				fprintf(nfp, "\n");
+		}
+		fprintf(nfp,"\n");
+	}
+	fclose(nfp);
+	printf("O arquivo foi criado com exito!\n");
 }
