@@ -9,10 +9,10 @@ int** alocamemo(int largura, int altura){
 	int **val;
 	int i;
 	
-	val = (int **)malloc(sizeof(int *) * largura);
+	val = (int **)malloc(largura*sizeof(int*));
 	
 	for(i = 0; i < largura; i ++){
-		val[i] = (int *)malloc(sizeof(int *) * altura);
+		val[i] = (int *)malloc(altura*sizeof(int*));
 	}
 	return val;
 }
@@ -20,9 +20,9 @@ int** alocamemo(int largura, int altura){
 int** lerimg(int **data,int largura, int altura){
 	
 	int i,j;
-	char x;
+	int x;
 	char linha[1000];
-	unsigned char val;
+	int val;
 	
 	for(i = janela/2; i < largura + janela/2 - 1; i++){
 		for(j = janela/2; j < altura + janela/2 - 1; j++){
@@ -34,19 +34,18 @@ int** lerimg(int **data,int largura, int altura){
 				continue;
 			}
 			fseek(fp, -1, SEEK_CUR);
-			fscanf(fp, "%hhd ", &val);
+			fscanf(fp, "%d ", &val);
 			data[i][j] = val;
 		}
 	}		
 	return data;
 }
 
-void armazenaimg(int *largura, int *altura, int *maximo){
+void armazenaimg(int *largura, int *altura, int *maximo){//problema
 	
 	char linha[1000];
-	char x;
-	
-	unsigned char k;
+	unsigned char x;
+	int k;
 	
 	fgets(linha,vetorzao,fp);
 	*altura = -1;
@@ -54,16 +53,16 @@ void armazenaimg(int *largura, int *altura, int *maximo){
 	*maximo = -1;
 	
 	while(*maximo <= 0){
-		x = fgetc(fp);
+		k = fgetc(fp);
 	
-		if(x == '#'){
+		if(k == '#'){
 			fgets(linha,vetorzao,fp);
 			continue;
 		}
 		
 		fseek(fp, -1, SEEK_CUR);
 		
-		fscanf(fp, "%c", &k);
+		fscanf(fp, "%c", &x);
 		
 		if(*altura == -1){
 			fseek(fp,-1,SEEK_CUR);
@@ -77,6 +76,11 @@ void armazenaimg(int *largura, int *altura, int *maximo){
 		}
 	}
 }
+
+/*int** filtromedia(int **data, int x, int y,int janela){
+	    
+
+}*/
 
 void bordas(int **data, int largura, int altura){
 	
@@ -118,12 +122,12 @@ void escreverimg(int **data,int largura, int altura, int maximo, const char *new
 	fprintf(nfp,"%d %d\n", altura, largura);
 	fprintf(nfp,"%d\n", maximo);
 	
-	for(i = janela/2; i < altura+janela/2; i++){
+	for(i = janela/2; i < largura+janela/2; i++){
 			count = 1;
-		for(j = janela/2; j < largura+janela/2; j++,count++){
+		for(j = janela/2; j < altura+janela/2; j++,count++){
 			fprintf(nfp, "%.3d ", data[i][j]);
 			if(count%10 == 0 && j > janela/2)
-				fprintf(nfp, "\n");
+				fprintf(nfp," #Linha %d.\n",i-janela/2+1);
 		}
 		fprintf(nfp,"\n");
 	}
