@@ -71,7 +71,7 @@ int main (){
 	if(op = 1){
 		data = filtros(data,largura, altura, op1);
 	}else if(op == 2){
-		/*data = filtromedia(data, largura-1 , altura-1, janela);*/
+		data = filtromedia(data, largura, altura, janela);
 	}
 	
 	escreverimg(data,largura,altura,maximo,novoarquivo);
