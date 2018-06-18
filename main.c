@@ -58,18 +58,21 @@ int main (){
 		exit(1);
 	}
 	
-	printf("Informe o novo do novo arquivo: ");
+	printf("Informe o nome do novo arquivo: ");
 	scanf("%s", novoarquivo);
 	
-	if(op == 1){
-		data = testando(data,largura + 1, altura + 1, op1);
-	}
+	armazenaimg(&largura,&altura,&maximo);
 	
-	armazenaimg(&largura, &altura, &maximo);
-	
+
 	data = alocamemo(largura+val, altura+val);
 	
 	lerimg(data,largura+1,altura+1);
+	
+	if(op = 1){
+		data = filtros(data,largura, altura, op1);
+	}else if(op == 2){
+		/*data = filtromedia(data, largura-1 , altura-1, janela);*/
+	}
 	
 	escreverimg(data,largura,altura,maximo,novoarquivo);
 	
