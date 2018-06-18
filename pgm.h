@@ -77,10 +77,54 @@ void armazenaimg(int *largura, int *altura, int *maximo){//problema
 	}
 }
 
-/*int** filtromedia(int **data, int x, int y,int janela){
-	    
+int** filtromedia(int **data, int largura, int altura,int janela){
+	
+	int *matriz;
+    matriz = (int *) malloc(sizeof(int *) * janela * janela);
+    
+    int soma = 0;
+    int m = 0;
+    int count, val;
+    int i, j, k, l, h;
+    
+    int **ndata;
+     
+    int aux = janela/2;
+    ndata = alocamemo(largura + 2*aux, altura + 2*aux);
+    for(i = 0; i < largura + 2*aux; i++){
+	    for(j = 0; j < altura + 2*aux; j++){
+		    data[i][j] = 0;
+	    }
+    }
+    for(i = aux; i < largura + aux; i++){
+	    for(j = aux; j < altura + aux; j++){
+		    ndata[i][j] = data[i][j];
+	    }
+    }
+    for(k = aux; k < largura + aux; k++){
+	    for(l = aux; l < altura + aux; l++){
+		    for(i = k - aux; i < k + aux + 1; i++){
+			    for(j = l - aux; j < l + aux + 1; j++){
+				    matriz[m++]= ndata[i][j];
 
-}*/
+			    }
+			}   
+		    for(h = 0; h < janela*janela;h++){         
+				count = h;
+				while(matriz[count-1] > matriz[count] && count > 0){
+				    val = matriz[count];
+				    matriz[count] = matriz[count -1];
+				    matriz[count-1] = val;
+				    count--;
+		    	}
+	  		}
+			ndata[k][l] = matriz[janela*janela/2];
+			m = 0;
+			soma = 0;
+		}
+    }
+    return ndata;
+}   
 
 void bordas(int **data, int largura, int altura){
 	
