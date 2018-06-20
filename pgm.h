@@ -2,7 +2,7 @@
 
 FILE *fp;
 FILE *nfp;
-int janela;
+int jan;
 
 int** alocamemo(int largura, int altura){
 	
@@ -24,8 +24,8 @@ int** lerimg(int **data,int largura, int altura){
 	char linha[1000];
 	int val;
 	
-	for(i = janela/2; i < largura + janela/2 - 1; i++){
-		for(j = janela/2; j < altura + janela/2 - 1; j++){
+	for(i = jan/2; i < largura + jan/2 -1; i++){
+		for(j = jan/2; j < altura + jan/2 -1; j++){
 		
 			x = fgetc(fp);
 			if ( x == '#'){
@@ -41,10 +41,10 @@ int** lerimg(int **data,int largura, int altura){
 	return data;
 }
 
-void armazenaimg(int *largura, int *altura, int *maximo){//problema
+void armazenaimg(int *largura, int *altura, int *maximo){
 	
 	char linha[1000];
-	unsigned char x;
+	char x;
 	int k;
 	
 	fgets(linha,vetorzao,fp);
@@ -75,56 +75,7 @@ void armazenaimg(int *largura, int *altura, int *maximo){//problema
 			fscanf(fp, "%d", &(*maximo));
 		}
 	}
-}
-
-int** filtromedia(int **data, int largura, int altura,int janela){
-	
-	int *matriz;
-    matriz = (int *) malloc(sizeof(int *) * janela * janela);
-    
-    int soma = 0;
-    int m = 0;
-    int count, val;
-    int i, j, k, l, h;
-    
-    int **ndata;
-     
-    int aux = janela/2;
-    ndata = alocamemo(largura + 2*aux, altura + 2*aux);
-    for(i = 0; i < largura + 2*aux; i++){
-	    for(j = 0; j < altura + 2*aux; j++){
-		    data[i][j] = 0;
-	    }
-    }
-    for(i = aux; i < largura + aux; i++){
-	    for(j = aux; j < altura + aux; j++){
-		    ndata[i][j] = data[i][j];
-	    }
-    }
-    for(k = aux; k < largura + aux; k++){
-	    for(l = aux; l < altura + aux; l++){
-		    for(i = k - aux; i < k + aux + 1; i++){
-			    for(j = l - aux; j < l + aux + 1; j++){
-				    matriz[m++]= ndata[i][j];
-
-			    }
-			}   
-		    for(h = 0; h < janela*janela;h++){         
-				count = h;
-				while(matriz[count-1] > matriz[count] && count > 0){
-				    val = matriz[count];
-				    matriz[count] = matriz[count -1];
-				    matriz[count-1] = val;
-				    count--;
-		    	}
-	  		}
-			ndata[k][l] = matriz[janela*janela/2];
-			m = 0;
-			soma = 0;
-		}
-    }
-    return ndata;
-}   
+} 
 
 void bordas(int **data, int largura, int altura){
 	
@@ -139,8 +90,7 @@ void bordas(int **data, int largura, int altura){
 		data[i][0] = 255;
 		data[i][altura +1] = 255;
 	}
-}
-
+}  
 void desalocamemo(int **data, int largura){
 	int i;
 	
@@ -150,7 +100,7 @@ void desalocamemo(int **data, int largura){
 	free(data);
 }
 
-void escreverimg(int **data,int largura, int altura, int maximo, const char *newfile){
+void escreverimg(int **data,int largura, int altura, int maximo, char *newfile){
 	
 	int i,j;
 	int count = 1;
@@ -166,15 +116,64 @@ void escreverimg(int **data,int largura, int altura, int maximo, const char *new
 	fprintf(nfp,"%d %d\n", altura, largura);
 	fprintf(nfp,"%d\n", maximo);
 	
-	for(i = janela/2; i < largura+janela/2; i++){
+	for(i = jan/2; i < largura+jan/2; i++){
 			count = 1;
-		for(j = janela/2; j < altura+janela/2; j++,count++){
+		for(j = jan/2; j < altura+jan/2; j++,count++){
 			fprintf(nfp, "%.3d ", data[i][j]);
-			if(count%10 == 0 && j > janela/2)
-				fprintf(nfp," #Linha %d.\n",i-janela/2+1);
+			if(count%10 == 0 && j > jan/2){
+			}	
 		}
 		fprintf(nfp,"\n");
 	}
 	fclose(nfp);
 	printf("O arquivo foi criado com exito!\n");
+}
+
+int** filtromediana(int **ndata, int largura, int altura,int janela2){
+	int *matriz;
+    matriz = (int *) malloc(sizeof(int *) * janela2 * janela2);
+    
+    int soma;
+    int m = 0;
+    int count, val;
+    int i, j, k, l, h;
+    
+    int **data;
+     
+    int aux = janela2/2;
+    data = alocamemo(largura + 2*aux, altura + 2*aux);
+    for(i = 0; i < largura + 2*aux; i++){
+	    for(j = 0; j < altura + 2*aux; j++){
+		    data[i][j] = 0;
+	    }
+    }
+    for(i = aux; i < largura + aux; i++){
+	    for(j = aux; j < altura + aux; j++){
+		    data[i][j] = ndata[i][j];
+	    }
+    }
+    soma = 0;
+    for(k = aux; k < largura + aux; k++){
+	    for(l = aux; l < altura + aux; l++){
+		    for(i = k - aux; i < k + aux + 1; i++){
+			    for(j = l - aux; j < l + aux + 1; j++){
+				    matriz[m++]= data[i][j];
+
+			    }
+			}   
+		    for(h = 0; h < janela2 *janela2;h++){         
+				count = h;
+				while(matriz[count-1] > matriz[count] && count > 0){
+				    val = matriz[count];
+				    matriz[count] = matriz[count -1];
+				    matriz[count-1] = val;
+				    count--;
+		    	}
+	  		}
+			data[k][l] = matriz[janela2*janela2/2];
+			m = 0;
+			soma = 0;
+		}
+    }
+    return data;
 }
