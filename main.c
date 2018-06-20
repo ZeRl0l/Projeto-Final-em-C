@@ -6,48 +6,55 @@
 
 int main (){
     
-    int largura;
-    int altura;
-    int maximo;
+    int largura, altura, maximo;
+    int i,j;
   	int **data;
-  	int janela;
-  	int val = (janela/2)*2;
-  	
-    int op, op1;
+  	int val;
+    
+    char op,op1;
     char nomearquivo[50];
     char novoarquivo[50];
 	
 	printf("Informe o nome do arquivo a ser lido: ");
 	scanf("%s", nomearquivo);
-
+	
 	printf("Qual filtro voce deseja usar?\n");
 	
-	printf("(1) - Convolucao (2) - Filtro da media\n");
-	scanf("%d", &op);
+	printf("(A) - Convolucao (B) - Mediana (C) - Media\n");
+	setbuf(stdin,NULL);
+	scanf("%c", &op);
+	setbuf(stdin,NULL);
 
-	if(op == 1){
-		printf("Qual mascara voce deseja usar: ");
+	if(op == 'A'){
+		printf("(L) - Laplace (S) - Sobel\n");
+		getchar();
+		scanf("%c", &op1);
+		jan = 3;
 		
-		printf("(1) - Laplace (2) - Sobel\n");
-		scanf("%d", &op1);
-		janela = 3;
-		
-		if(op1 != 1 && op1 != 2){
+		if(op1 != 'L' && op1 != 'S'){
 			printf("Opcao invalida.\n");
-			return main();
+			return main();	
 		}
 		
-	}else if(op == 2){
-		printf("Informe o tamanho da janela: ");
-		scanf("%d", &janela);
+		setbuf(stdin,NULL);
 		
+	}else if(op == 'B'){
+		printf("Informe o tamanho da janela:\n");
+		scanf("%d",&jan);
+	
+		
+	}else if(op == 'C'){
+		printf("Informe o tamanho da janela:\n");
+		scanf("%d",&jan);
 	}else{
 		printf("Opcao invalida.\n");
 		return main();
 	}	
 	
-	if(janela <= 1 || janela%2 == 0){
+	if(jan <= 1 || jan%2 == 0){
 		printf("A janela deve ser um numero maior que 1 e deve ser um numero impar.\n\n");
+		setbuf(stdin,NULL);
+		
 		return main();
 	}
 	
@@ -62,16 +69,19 @@ int main (){
 	scanf("%s", novoarquivo);
 	
 	armazenaimg(&largura,&altura,&maximo);
-	
 
+	val = (jan/2)*2;
 	data = alocamemo(largura+val, altura+val);
 	
 	lerimg(data,largura+1,altura+1);
 	
-	if(op = 1){
-		data = filtros(data,largura, altura, op1);
-	}else if(op == 2){
-		data = filtromedia(data, largura, altura, janela);
+	if(op == 'A'){
+		data = masks(data, largura + 1, altura + 1, op1);
+	
+	}else if(op == 'B'){
+		data = filtromediana(data,largura, altura, jan);
+	}else if(op == 'C'){
+		data = filtromedia(data,larugra,altura,jan);
 	}
 	
 	escreverimg(data,largura,altura,maximo,novoarquivo);
